@@ -34,7 +34,7 @@ public:
         vector<int> col_widths(cols, 0);
 
         // Первый проход: определяем максимальную ширину для каждого столбца
-        // Çàãîëîâêè ñòîëáöîâ
+        // Заголовки столбцов
         for (int i = 0; i < cols; ++i) {
             const char* col_name = sqlite3_column_name(stmt, i);
             int width = string(col_name).length();
@@ -43,7 +43,7 @@ public:
             }
         }
 
-        // Äàííûå
+        // Данные
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             for (int i = 0; i < cols; ++i) {
                 const char* text = (const char*)sqlite3_column_text(stmt, i);
@@ -56,25 +56,25 @@ public:
             }
         }
 
-        // Ñáðîñ êóðñîðà äëÿ ïîâòîðíîãî ÷òåíèÿ äàííûõ
+        // Сброс курсора для повторного чтения данных
         sqlite3_reset(stmt);
 
-        // Âòîðîé ïðîõîä: âûâîä äàííûõ ñ ïðàâèëüíûì âûðàâíèâàíèåì
+        // Второй проход: вывод данных с правильным выравниванием
 
-        // Âûâîä çàãîëîâêîâ
+        // Вывод заголовков
         for (int i = 0; i < cols; ++i) {
             const char* col_name = sqlite3_column_name(stmt, i);
             cout << left << setw(col_widths[i] + 2) << col_name;
         }
         cout << endl;
 
-        // Âûâîä ðàçäåëèòåëüíîé ëèíèè
+        // Вывод разделительной линии
         for (int i = 0; i < cols; ++i) {
             cout << string(col_widths[i] + 2, '-');
         }
         cout << endl;
 
-        // Âûâîä äàííûõ
+        // Вывод данных
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             for (int i = 0; i < cols; ++i) {
                 const char* text = (const char*)sqlite3_column_text(stmt, i);
@@ -86,24 +86,24 @@ public:
         sqlite3_finalize(stmt);
     }
 
-    // Êîíñòðóêòîð - ñîçäàåò èëè îòêðûâàåò áàçó äàííûõ
+    // Конструктор - создает или открывает базу данных
     TourismDatabase(const string& dbName) {
         if (sqlite3_open(dbName.c_str(), &db) != SQLITE_OK) {
-            cerr << "Íå óäàëîñü îòêðûòü áàçó äàííûõ: " << sqlite3_errmsg(db) << endl;
+            cerr << "Не удалось открыть базу данных: " << sqlite3_errmsg(db) << endl;
             exit(1);
         }
-        cout << "Áàçà äàííûõ óñïåøíî îòêðûòà/ñîçäàíà." << endl;
+        cout << "База данных успешно открыта/создана." << endl;
     }
-    // Äåñòðóêòîð - çàêðûâàåò ñîåäèíåíèå ñ áàçîé äàííûõ
+    // Деструктор - закрывает соединение с базой данных
     ~TourismDatabase() {
         sqlite3_close(db);
-        cout << "Ñîåäèíåíèå ñ áàçîé äàííûõ çàêðûòî." << endl;
+        cout << "Соединение с базой данных закрыто." << endl;
     }
-    // Èíèöèàëèçàöèÿ ñòðóêòóðû áàçû äàííûõ
+    // Инициализация структуры базы данных
     void initializeDatabase() {
-        // Âêëþ÷åíèå ïîääåðæêè âíåøíèõ êëþ÷åé
+        // Включение поддержки внешних ключей
         executeQuery("PRAGMA foreign_keys = ON;");
-        // Ñîçäàíèå òàáëèöû ñòðàí (ñïðàâî÷íèê)
+        // Создание таблицы стран (справочник)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS Countries ("
             "country_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -112,7 +112,7 @@ public:
             "description TEXT"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû òèïîâ òóðîâ (ñïðàâî÷íèê)
+        // Создание таблицы типов туров (справочник)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS TourTypes ("
             "type_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -120,7 +120,7 @@ public:
             "description TEXT"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû êëèåíòîâ (ñïðàâî÷íèê)
+        // Создание таблицы клиентов (справочник)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS Clients ("
             "client_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -131,7 +131,7 @@ public:
             "email TEXT"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû óñëóã (ñïðàâî÷íèê)
+        // Создание таблицы услуг (справочник)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS Services ("
             "service_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -140,7 +140,7 @@ public:
             "base_price REAL NOT NULL"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû òóðîâ (ïåðåìåííàÿ èíôîðìàöèÿ)
+        // Создание таблицы туров (переменная информация)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS Tours ("
             "tour_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -158,7 +158,7 @@ public:
             "CHECK (max_capacity > 0)"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû çàêàçîâ (ïåðåìåííàÿ èíôîðìàöèÿ)
+        // Создание таблицы заказов (переменная информация)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS Orders ("
             "order_id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -176,7 +176,7 @@ public:
             "CHECK (total_price > 0)"
             ");"
         );
-        // Ñîçäàíèå òàáëèöû ñâÿçè òóðîâ è óñëóã (ìíîãèå-êî-ìíîãèì)
+        // Создание таблицы связи туров и услуг (многие-ко-многим)
         executeQuery(
             "CREATE TABLE IF NOT EXISTS TourServices ("
             "tour_id INTEGER NOT NULL,"
@@ -187,52 +187,52 @@ public:
             "FOREIGN KEY (service_id) REFERENCES Services(service_id) ON DELETE CASCADE"
             ");"
         );
-        cout << "Ñòðóêòóðà áàçû äàííûõ óñïåøíî èíèöèàëèçèðîâàíà." << endl;
+        cout << "Структура базы данных успешно инициализирована." << endl;
     }
-    // Ìåòîä äëÿ çàïîëíåíèÿ òåñòîâûìè äàííûìè
+    // Метод для заполнения тестовыми данными
     void populateSampleData() {
-        // Äîáàâëåíèå ñòðàí
+        // Добавление стран
         executeQuery("INSERT OR IGNORE INTO Countries (name, visa_required, description) VALUES "
-            "('Èòàëèÿ', 1, 'Ðîìàíòè÷åñêèå êàíèêóëû â ñåðäöå Åâðîïû'),"
-            "('Òóðöèÿ', 0, 'Îòäûõ íà ïëÿæàõ Ñðåäèçåìíîãî è Ýãåéñêîãî ìîðåé'),"
-            "('ßïîíèÿ', 1, 'Óíèêàëüíîå ñî÷åòàíèå òðàäèöèé è ñîâðåìåííûõ òåõíîëîãèé'),"
-            "('Ìàëüäèâû', 0, 'Ðàéñêèå îñòðîâà ñ áåëîñíåæíûìè ïëÿæàìè');");
-        // Äîáàâëåíèå òèïîâ òóðîâ
+            "('Италия', 1, 'Романтические каникулы в сердце Европы'),"
+            "('Турция', 0, 'Отдых на пляжах Средиземного и Эгейского морей'),"
+            "('Япония', 1, 'Уникальное сочетание традиций и современных технологий'),"
+            "('Мальдивы', 0, 'Райские острова с белоснежными пляжами');");
+        // Добавление типов туров
         executeQuery("INSERT OR IGNORE INTO TourTypes (type_name, description) VALUES "
-            "('Ïëÿæíûé îòäûõ', 'Îòäûõ íà ìîðå ñ îòåëåì ó ïëÿæà'),"
-            "('Ýêñêóðñèîííûé', 'Ïîçíàâàòåëüíûå òóðû ñ îñìîòðîì äîñòîïðèìå÷àòåëüíîñòåé'),"
-            "('Ãîðíîëûæíûé', 'Òóðû â ãîðíîëûæíûå êóðîðòû'),"
-            "('Êðóèç', 'Ìîðñêèå ïóòåøåñòâèÿ íà êðóèçíûõ ëàéíåðàõ');");
-        // Äîáàâëåíèå êëèåíòîâ
+            "('Пляжный отдых', 'Отдых на море с отелем у пляжа'),"
+            "('Экскурсионный', 'Познавательные туры с осмотром достопримечательностей'),"
+            "('Горнолыжный', 'Туры в горнолыжные курорты'),"
+            "('Круиз', 'Морские путешествия на круизных лайнерах');");
+        // Добавление клиентов
         executeQuery("INSERT OR IGNORE INTO Clients (first_name, last_name, passport_number, phone, email) VALUES "
-            "('Èâàí', 'Ïåòðîâ', 'AB1234567', '+375291234567', 'ivan.petrov@example.com'),"
-            "('Àííà', 'Ñèäîðîâà', 'CD7654321', '+375297654321', 'anna.sidorova@example.com'),"
-            "('Ñåðãåé', 'Èâàíîâ', 'EF9876543', '+375299876543', 'sergey.ivanov@example.com');");
-        // Äîáàâëåíèå óñëóã
+            "('Иван', 'Петров', 'AB1234567', '+375291234567', 'ivan.petrov@example.com'),"
+            "('Анна', 'Сидорова', 'CD7654321', '+375297654321', 'anna.sidorova@example.com'),"
+            "('Сергей', 'Иванов', 'EF9876543', '+375299876543', 'sergey.ivanov@example.com');");
+        // Добавление услуг
         executeQuery("INSERT OR IGNORE INTO Services (service_name, description, base_price) VALUES "
-            "('Ñòðàõîâêà', 'Ìåäèöèíñêàÿ ñòðàõîâêà íà âðåìÿ ïîåçäêè', 50.0),"
-            "('Òðàíñôåð', 'Òðàíñôåð èç àýðîïîðòà â îòåëü è îáðàòíî', 80.0),"
-            "('Ýêñêóðñèÿ', 'Îáçîðíàÿ ýêñêóðñèÿ ïî ãîðîäó', 120.0),"
-            "('VIP-îáñëóæèâàíèå', 'Ïåðñîíàëüíûé ãèä è òðàíñïîðò', 350.0);");
-        cout << "Òåñòîâûå äàííûå óñïåøíî äîáàâëåíû â áàçó äàííûõ." << endl;
+            "('Страховка', 'Медицинская страховка на время поездки', 50.0),"
+            "('Трансфер', 'Трансфер из аэропорта в отель и обратно', 80.0),"
+            "('Экскурсия', 'Обзорная экскурсия по городу', 120.0),"
+            "('VIP-обслуживание', 'Персональный гид и транспорт', 350.0);");
+        cout << "Тестовые данные успешно добавлены в базу данных." << endl;
     }
     void demonstrateDatabase() {
-        cout << "\nÄåìîíñòðàöèÿ ðàáîòû áàçû äàííûõ:\n" << endl;
+        cout << "\nДемонстрация работы базы данных:\n" << endl;
 
-        // Âûâîä ñïèñêà ñòðàí (ñ ñîðòèðîâêîé ïî country_id)
-        cout << "Äîñòóïíûå ñòðàíû:" << endl;
+        // Вывод списка стран (с сортировкой по country_id)
+        cout << "Доступные страны:" << endl;
         printTable("SELECT country_id, name, visa_required FROM Countries ORDER BY country_id;");
 
-        // Âûâîä òèïîâ òóðîâ (ñ ñîðòèðîâêîé ïî type_id)
-        cout << "\nÒèïû òóðîâ:" << endl;
+        // Вывод типов туров (с сортировкой по type_id)
+        cout << "\nТипы туров:" << endl;
         printTable("SELECT type_id, type_name FROM TourTypes ORDER BY type_id;");
 
-        // Âûâîä êëèåíòîâ (ñ ñîðòèðîâêîé ïî client_id)
-        cout << "\nÇàðåãèñòðèðîâàííûå êëèåíòû:" << endl;
+        // Вывод клиентов (с сортировкой по client_id)
+        cout << "\nЗарегистрированные клиенты:" << endl;
         printTable("SELECT client_id, first_name || ' ' || last_name AS full_name FROM Clients ORDER BY client_id;");
 
-        // Ìîæíî òàêæå âûâåñòè ïðèìåð òóðîâ ñ ñîðòèðîâêîé:
-        cout << "\nÏðèìåðû äîñòóïíûõ òóðîâ:" << endl;
+        // Можно также вывести пример туров с сортировкой:
+        cout << "\nПримеры доступных туров:" << endl;
         printTable("SELECT t.tour_id, c.name as country, tt.type_name, t.start_date, t.end_date "
             "FROM Tours t "
             "JOIN Countries c ON t.country_id = c.country_id "
@@ -241,17 +241,17 @@ public:
     }
 };
 int main() {
-    // Óñòàíîâêà ëîêàëè äëÿ êîððåêòíîãî îòîáðàæåíèÿ êèðèëëèöû
+    // Установка локали для корректного отображения кириллицы
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     setlocale(LC_ALL, "RU");
-    cout << "Ñîçäàíèå áàçû äàííûõ äëÿ òóðèñòè÷åñêîãî àãåíòñòâà" << endl;
+    cout << "Создание базы данных для туристического агентства" << endl;
 
-    // Ñîçäàíèå è èíèöèàëèçàöèÿ áàçû äàííûõ
+    // Создание и инициализация базы данных
     TourismDatabase tourismDB("tourism_agency.db");
     tourismDB.initializeDatabase();
     tourismDB.populateSampleData();
     tourismDB.demonstrateDatabase();
-    cout << "\nÁàçà äàííûõ ãîòîâà ê èñïîëüçîâàíèþ!" << endl;
+    cout << "\nБаза данных готова к использованию!" << endl;
     return 0;
 }
