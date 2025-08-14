@@ -5,16 +5,16 @@
 #include <Windows.h>
 #include <iomanip>
 using namespace std;
-// Êëàññ äëÿ ðàáîòû ñ áàçîé äàííûõ òóðèñòè÷åñêîãî àãåíòñòâà
+// Класс для работы с базой данных туристического агентства
 class TourismDatabase {
 private:
     sqlite3* db;
 
-    // Âñïîìîãàòåëüíàÿ ôóíêöèÿ äëÿ âûïîëíåíèÿ SQL-çàïðîñîâ
+    // Вспомогательная функция для выполнения SQL-запросов
     void executeQuery(const string& sql) {
         char* errMsg = nullptr;
         if (sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &errMsg) != SQLITE_OK) {
-            cerr << "Îøèáêà SQL: " << errMsg << endl;
+            cerr << "Ошибка SQL: " << errMsg << endl;
             sqlite3_free(errMsg);
         }
     }
@@ -23,17 +23,17 @@ public:
     void printTable(const string& sql) {
         sqlite3_stmt* stmt;
         if (sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr) != SQLITE_OK) {
-            cerr << "Îøèáêà ïîäãîòîâêè çàïðîñà: " << sqlite3_errmsg(db) << endl;
+            cerr << "Ошибка подготовки запроса: " << sqlite3_errmsg(db) << endl;
             return;
         }
 
-        // Ïîëó÷åíèå êîëè÷åñòâà ñòîëáöîâ
+        // Получение количества столбцов
         int cols = sqlite3_column_count(stmt);
 
-        // Âåêòîð äëÿ õðàíåíèÿ ìàêñèìàëüíîé øèðèíû êàæäîãî ñòîëáöà
+        // Вектор для хранения максимальной ширины каждого столбца
         vector<int> col_widths(cols, 0);
 
-        // Ïåðâûé ïðîõîä: îïðåäåëÿåì ìàêñèìàëüíóþ øèðèíó äëÿ êàæäîãî ñòîëáöà
+        // Первый проход: определяем максимальную ширину для каждого столбца
         // Çàãîëîâêè ñòîëáöîâ
         for (int i = 0; i < cols; ++i) {
             const char* col_name = sqlite3_column_name(stmt, i);
