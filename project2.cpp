@@ -5,15 +5,15 @@
 #include <io.h>
 #include <fcntl.h>
 
-// Óñòàíîâêà ðóññêîé ëîêàëè äëÿ êîíñîëè
+// Установка русской локали для консоли
 void setRussianLocale() {
-    // Äëÿ Windows
+    // Для Windows
 #ifdef _WIN32
-    // Óñòàíàâëèâàåì ëîêàëü äëÿ êîíñîëè
+    // Устанавливаем локаль для консоли
     setlocale(LC_ALL, "Russian");
-    // Íàñòðàèâàåì âûâîä wide-ñòðîê â Windows
+    // Настраиваем вывод wide-строк в Windows
     _setmode(_fileno(stdout), _O_U16TEXT);
-    // Äëÿ Linux è äðóãèõ UNIX-ïîäîáíûõ ñèñòåì
+    // Для Linux и других UNIX-подобных систем
 #else
     std::locale::global(std::locale("ru_RU.UTF-8"));
     std::wcout.imbue(std::locale("ru_RU.UTF-8"));
@@ -21,7 +21,7 @@ void setRussianLocale() {
 }
 
 /**
- * @brief Áàçîâûé êëàññ - Òðàíñïîðòíîå ñðåäñòâî
+ * @brief Базовый класс - Транспортное средство
  */
 class Transport {
 protected:
@@ -30,37 +30,37 @@ protected:
 
 public:
     /**
-     * @brief Êîíñòðóêòîð áàçîâîãî êëàññà
-     * @param model Ìîäåëü òðàíñïîðòíîãî ñðåäñòâà
-     * @param year Ãîä âûïóñêà
+     * @brief Конструктор базового класса
+     * @param model Модель транспортного средства
+     * @param year Год выпуска
      */
     Transport(const std::wstring& model, int year) : model(model), year(year) {}
 
     /**
-     * @brief Âèðòóàëüíûé ìåòîä äëÿ îòîáðàæåíèÿ èíôîðìàöèè
+     * @brief Виртуальный метод для отображения информации
      */
     virtual void displayInfo() const {
-        std::wcout << L"Òðàíñïîðòíîå ñðåäñòâî: " << model << std::endl;
-        std::wcout << L"Ãîä âûïóñêà: " << year << std::endl;
+        std::wcout << L"Транспортное средство: " << model << std::endl;
+        std::wcout << L"Год выпуска: " << year << std::endl;
     }
 
     /**
-     * @brief Âèðòóàëüíûé ìåòîä äëÿ çâóêà òðàíñïîðòíîãî ñðåäñòâà
+     * @brief Виртуальный метод для звука транспортного средства
      */
     virtual void makeSound() const {
-        std::wcout << L"Òðàíñïîðòíîå ñðåäñòâî èçäàåò çâóê!" << std::endl;
+        std::wcout << L"Транспортное средство издает звук!" << std::endl;
     }
 
     /**
-     * @brief Âèðòóàëüíûé äåñòðóêòîð
+     * @brief Виртуальный деструктор
      */
     virtual ~Transport() {
-        std::wcout << L"Áàçîâûé êëàññ Transport óíè÷òîæåí" << std::endl;
+        std::wcout << L"Базовый класс Transport уничтожен" << std::endl;
     }
 };
 
 /**
- * @brief Ïðîèçâîäíûé êëàññ - Àâòîìîáèëü
+ * @brief Производный класс - Автомобиль
  */
 class Car : public Transport {
 private:
@@ -69,50 +69,50 @@ private:
 
 public:
     /**
-     * @brief Êîíñòðóêòîð ïðîèçâîäíîãî êëàññà
-     * @param model Ìîäåëü àâòîìîáèëÿ
-     * @param year Ãîä âûïóñêà
-     * @param horsepower Êîëè÷åñòâî ëîøàäèíûõ ñèë
-     * @param fuelType Òèï òîïëèâà
+     * @brief Конструктор производного класса
+     * @param model Модель автомобиля
+     * @param year Год выпуска
+     * @param horsepower Количество лошадиных сил
+     * @param fuelType Тип топлива
      */
     Car(const std::wstring& model, int year, int horsepower, const std::wstring& fuelType)
         : Transport(model, year), horsepower(horsepower), fuelType(fuelType) {
     }
 
     /**
-     * @brief Ïåðåîïðåäåëåííûé ìåòîä äëÿ îòîáðàæåíèÿ èíôîðìàöèè
+     * @brief Переопределенный метод для отображения информации
      */
     void displayInfo() const override {
-        std::wcout << L"\n=== Èíôîðìàöèÿ îá àâòîìîáèëå ===" << std::endl;
+        std::wcout << L"\n=== Информация об автомобиле ===" << std::endl;
         Transport::displayInfo();
-        std::wcout << L"Ëîøàäèíûå ñèëû: " << horsepower << std::endl;
-        std::wcout << L"Òèï òîïëèâà: " << fuelType << std::endl;
+        std::wcout << L"Лошадиные силы: " << horsepower << std::endl;
+        std::wcout << L"Тип топлива: " << fuelType << std::endl;
     }
 
     /**
-     * @brief Ïåðåîïðåäåëåííûé ìåòîä äëÿ çâóêà àâòîìîáèëÿ
+     * @brief Переопределенный метод для звука автомобиля
      */
     void makeSound() const override {
-        std::wcout << L"Àâòîìîáèëü ñèãíàëèò: Áèï-áèï!" << std::endl;
+        std::wcout << L"Автомобиль сигналит: Бип-бип!" << std::endl;
     }
 
     /**
-     * @brief Óíèêàëüíûé ìåòîä äëÿ àâòîìîáèëÿ
+     * @brief Уникальный метод для автомобиля
      */
     void startEngine() const {
-        std::wcout << L"Äâèãàòåëü àâòîìîáèëÿ çàïóùåí. Âððððð..." << std::endl;
+        std::wcout << L"Двигатель автомобиля запущен. Вррррр..." << std::endl;
     }
 
     /**
-     * @brief Äåñòðóêòîð
+     * @brief Деструктор
      */
     ~Car() override {
-        std::wcout << L"Ïðîèçâîäíûé êëàññ Car óíè÷òîæåí" << std::endl;
+        std::wcout << L"Производный класс Car уничтожен" << std::endl;
     }
 };
 
 /**
- * @brief Ïðîèçâîäíûé êëàññ - Âåëîñèïåä
+ * @brief Производный класс - Велосипед
  */
 class Bicycle : public Transport {
 private:
@@ -121,82 +121,82 @@ private:
 
 public:
     /**
-     * @brief Êîíñòðóêòîð ïðîèçâîäíîãî êëàññà
-     * @param model Ìîäåëü âåëîñèïåäà
-     * @param year Ãîä âûïóñêà
-     * @param type Òèï âåëîñèïåäà
-     * @param hasBasket Íàëè÷èå êîðçèíû
+     * @brief Конструктор производного класса
+     * @param model Модель велосипеда
+     * @param year Год выпуска
+     * @param type Тип велосипеда
+     * @param hasBasket Наличие корзины
      */
     Bicycle(const std::wstring& model, int year, const std::wstring& type, bool hasBasket)
         : Transport(model, year), type(type), hasBasket(hasBasket) {
     }
 
     /**
-     * @brief Ïåðåîïðåäåëåííûé ìåòîä äëÿ îòîáðàæåíèÿ èíôîðìàöèè
+     * @brief Переопределенный метод для отображения информации
      */
     void displayInfo() const override {
-        std::wcout << L"\n=== Èíôîðìàöèÿ î âåëîñèïåäå ===" << std::endl;
+        std::wcout << L"\n=== Информация о велосипеде ===" << std::endl;
         Transport::displayInfo();
-        std::wcout << L"Òèï âåëîñèïåäà: " << type << std::endl;
-        std::wcout << L"Êîðçèíà: " <<(hasBasket ? L"Äà" : L"Íåò") << std::endl;
+        std::wcout << L"Тип велосипеда: " << type << std::endl;
+        std::wcout << L"Корзина: " <<(hasBasket ? L"Да" : L"Нет") << std::endl;
     }
 
 
     /**
-         * @brief Ïåðåîïðåäåëåííûé ìåòîä äëÿ çâóêà âåëîñèïåäà
+         * @brief Переопределенный метод для звука велосипеда
          */
     void makeSound() const override {
-        std::wcout << L"Âåëîñèïåä çâåíèò: Äçèíü-äçèíü!" << std::endl;
+        std::wcout << L"Велосипед звенит: Дзинь-дзинь!" << std::endl;
     }
 
     /**
-     * @brief Óíèêàëüíûé ìåòîä äëÿ âåëîñèïåäà
+     * @brief Уникальный метод для велосипеда
      */
     void ringBell() const {
-        std::wcout << L"Âåëîñèïåäíûé çâîíîê çâîíèò!" << std::endl;
+        std::wcout << L"Велосипедный звонок звонит!" << std::endl;
     }
 
     /**
-     * @brief Äåñòðóêòîð
+     * @brief Деструктор
      */
     ~Bicycle() override {
-        std::wcout << L"Ïðîèçâîäíûé êëàññ Bicycle óíè÷òîæåí" << std::endl;
+        std::wcout << L"Производный класс Bicycle уничтожен" << std::endl;
     }
 };
 
 /**
- * @brief Îñíîâíàÿ ôóíêöèÿ ïðîãðàììû
- * @id739365412 (@return) Êîä çàâåðøåíèÿ ïðîãðàììû
+ * @brief Основная функция программы
+ * @id739365412 (@return) Код завершения программы
  */
 int main() {
     setRussianLocale();
 
-    std::wcout << L"Äåìîíñòðàöèÿ ðàáîòû áàçîâîãî è ïðîèçâîäíûõ êëàññîâ\n" << std::endl;
+    std::wcout << L"Демонстрация работы базового и производных классов\n" << std::endl;
 
-    // Ñîçäàåì îáúåêòû
+    // Создаем объекты
     Transport genericTransport(L"Generic Model", 2000);
-    Car myCar(L"Toyota Camry", 2020, 180, L"Áåíçèí");
-    Bicycle myBike(L"Stels Navigator-500", 2022, L"Ãîðíûé", true);
+    Car myCar(L"Toyota Camry", 2020, 180, L"Бензин");
+    Bicycle myBike(L"Stels Navigator-500", 2022, L"Горный", true);
 
-    // Äåìîíñòðàöèÿ ðàáîòû ìåòîäîâ áàçîâîãî êëàññà
-    std::wcout << L"\n=== Äåìîíñòðàöèÿ áàçîâîãî êëàññà ===" << std::endl;
+    // Демонстрация работы методов базового класса
+    std::wcout << L"\n=== Демонстрация базового класса ===" << std::endl;
     genericTransport.displayInfo();
     genericTransport.makeSound();
 
-    // Äåìîíñòðàöèÿ ðàáîòû ìåòîäîâ ïðîèçâîäíîãî êëàññà Car
-    std::wcout << L"\n=== Äåìîíñòðàöèÿ ïðîèçâîäíîãî êëàññà Car ===" << std::endl;
+    // Демонстрация работы методов производного класса Car
+    std::wcout << L"\n=== Демонстрация производного класса Car ===" << std::endl;
     myCar.displayInfo();
     myCar.makeSound();
     myCar.startEngine();
 
-    // Äåìîíñòðàöèÿ ðàáîòû ìåòîäîâ ïðîèçâîäíîãî êëàññà Bicycle
-    std::wcout << L"\n=== Äåìîíñòðàöèÿ ïðîèçâîäíîãî êëàññà Bicycle ===" << std::endl;
+    // Демонстрация работы методов производного класса Bicycle
+    std::wcout << L"\n=== Демонстрация производного класса Bicycle ===" << std::endl;
     myBike.displayInfo();
     myBike.makeSound();
     myBike.ringBell();
 
-    // Äåìîíñòðàöèÿ ïîëèìîðôèçìà ÷åðåç óêàçàòåëü íà áàçîâûé êëàññ
-    std::wcout << L"\n=== Äåìîíñòðàöèÿ ïîëèìîðôèçìà ===" << std::endl;
+    // Демонстрация полиморфизма через указатель на базовый класс
+    std::wcout << L"\n=== Демонстрация полиморфизма ===" << std::endl;
     Transport* transports[3];
     transports[0] = &genericTransport;
     transports[1] = &myCar;
@@ -208,6 +208,6 @@ int main() {
         std::wcout << std::endl;
     }
 
-    std::wcout << L"\nÏðîãðàììà çàâåðøåíà." << std::endl;
+    std::wcout << L"\nПрограмма завершена." << std::endl;
     return 0;
 }
